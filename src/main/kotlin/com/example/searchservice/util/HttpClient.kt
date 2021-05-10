@@ -4,6 +4,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.RequestEntity
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 
 import java.net.URI
@@ -16,6 +17,11 @@ class HttpClient(private val serverUrl: String) {
     init {
         httpHeaders.add("Content-Type", "application/json")
         httpHeaders.add("Accept", "application/json")
+
+        val requestFactory = HttpComponentsClientHttpRequestFactory()
+        requestFactory.setConnectTimeout(500)
+        requestFactory.setReadTimeout(500)
+        http.setRequestFactory(requestFactory)
     }
 
     fun get(path: String): String? {
@@ -26,9 +32,19 @@ class HttpClient(private val serverUrl: String) {
         return send(path, HttpMethod.POST, json)
     }
 
+    fun patch(path: String, json: String = ""): String? {
+        return send(path, HttpMethod.PATCH, json)
+    }
+
     private fun send(path: String, method: HttpMethod, json: String = ""): String? {
         val request = HttpEntity(json, httpHeaders)
         val url = serverUrl + path
-        return http.exchange(url, method, request, String::class.java).getBody()
+        println("Send request to $url with method $method")
+        try {
+            return http.exchange(url, method, request, String::class.java).getBody()
+        } catch (e: Exception) {
+            println("Error sending request: $e")
+            return e.message
+        }
     }
 }

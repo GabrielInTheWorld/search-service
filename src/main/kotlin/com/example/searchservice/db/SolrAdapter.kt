@@ -10,6 +10,10 @@ import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrInputDocument
 import org.apache.solr.common.SolrDocumentList
 
+// Reference https://solr.apache.org/docs/7_1_0/solr-solrj/
+// Reference https://solr.apache.org/guide/7_1/using-solrj.html
+// Reference https://solr.apache.org/guide/8_8/getting-started.html
+
 class SolrAdapter: IAdapter {
     private val solrClient: HttpSolrClient = getSolrClient()
     
@@ -56,10 +60,7 @@ class SolrAdapter: IAdapter {
 
         val response: QueryResponse = solrClient.query(query)
         val list: Array<Any> = response.getResults().toArray()
-        // for (entry in list) {
-        //     println(entry)
-        // }
-        println("$list.size results.")
+        println("${list.size} results.")
         return list
     }
 

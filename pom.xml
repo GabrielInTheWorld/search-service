@@ -53,6 +53,27 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Hot reloading -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- ArangoDB -->
+		<dependency>
+			<groupId>com.arangodb</groupId>
+			<artifactId>arangodb-java-driver</artifactId>
+			<version>6.12.1</version>
+		</dependency>
+
+		<!-- Solr -->
+		<dependency>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-solrj</artifactId>
+			<version>8.8.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -14,8 +14,6 @@ import com.arangodb.entity.ViewType
 
 import com.google.gson.Gson
 
-// import org.json.JSONObject
-
 // Reference: http://arangodb.github.io/arangodb-java-driver/javadoc-6_12/
 
 class ArangoAdapter(val dbName: String): IAdapter {
@@ -31,7 +29,6 @@ class ArangoAdapter(val dbName: String): IAdapter {
     init {
         createDb()
         createView()
-
     }
 
     override fun bulkInsert(collection: String, entities: Array<Map<String, Any>>): Unit {
@@ -48,7 +45,7 @@ class ArangoAdapter(val dbName: String): IAdapter {
             if (!allFields.contains(key as String)) {
                 allFields.add(key)
             }
-            document.addAttribute(key as String, value)
+            document.addAttribute(key, value)
         }
         arangoCollection.insertDocument(document)
         println("Done!")

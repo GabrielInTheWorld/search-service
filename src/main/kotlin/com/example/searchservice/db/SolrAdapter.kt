@@ -2,6 +2,8 @@ package com.example.searchservice.db
 
 import com.example.searchservice.db.IAdapter
 
+import org.springframework.beans.factory.annotation.Autowired
+
 import org.apache.solr.client.solrj.impl.HttpSolrClient
 // import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.impl.XMLResponseParser
@@ -15,10 +17,11 @@ import org.apache.solr.common.SolrDocumentList
 // Reference https://solr.apache.org/guide/8_8/getting-started.html
 
 class SolrAdapter: IAdapter {
-    private val solrClient: HttpSolrClient = getSolrClient()
+    @Autowired
+    private val solrClient: HttpSolrClient? = null
     
     init {
-        
+        println("solrClient: $solrClient")
     }
 
     override fun bulkInsert(collection: String, entities: Array<Map<String, Any>>): Unit {
@@ -41,8 +44,8 @@ class SolrAdapter: IAdapter {
         document.addField("collection", collection)
         document.setField("id", "$collection/$id")
         try {
-            solrClient.add(document)
-            solrClient.commit()
+            solrClient?.add(document)
+            solrClient?.commit()
             println("Done!")
         } catch (e: Exception) {
             println("An error occurred: " + e.message)
@@ -58,7 +61,7 @@ class SolrAdapter: IAdapter {
         query.setStart(0)
         query.setRows(100)
 
-        val response: QueryResponse = solrClient.query(query)
+        val response: QueryResponse = solrClient!!.query(query)
         val list: Array<Any> = response.getResults().toArray()
         println("${list.size} results.")
         return list

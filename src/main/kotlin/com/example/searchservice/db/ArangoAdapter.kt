@@ -11,6 +11,7 @@ import com.arangodb.entity.CollectionEntity;
 import com.arangodb.entity.BaseDocument;
 import com.arangodb.entity.ViewEntity
 import com.arangodb.entity.ViewType
+import com.arangodb.ArangoCursor
 
 import com.google.gson.Gson
 
@@ -51,8 +52,19 @@ class ArangoAdapter(val dbName: String): IAdapter {
         println("Done!")
     }
 
-    override fun search(searchQuery: String): Array<Any> {
-        return emptyArray()
+    override fun search(searchQuery: String): List<Any> {
+        try {
+            val query: String = "for doc in $collectionViewsName filter concat_separator(\" \", values(doc)) =~ \".*$searchQuery.*\" return doc"
+            val cursor: ArangoCursor<BaseDocument> = arangodb.db(dbName).query(query, emptyMap(), null, BaseDocument::class.java)
+            val result: ArrayList<Any> = ArrayList()
+            while (cursor.hasNext()) {
+                result.add(cursor.next())
+            }
+            return result
+        } catch (e: Exception) {
+            println("Error occurred while searching: ${e.message}")
+            return emptyList()
+        }
     }
 
     private fun createDb(): Unit {

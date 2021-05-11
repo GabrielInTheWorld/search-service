@@ -30,8 +30,9 @@ class ApiController {
 
     @PostMapping("/presenter:arango.search", consumes=["application/json"], produces=["application/json"])
     fun presenterArangoSearch(@RequestBody json: Array<Presenter>): Any {
-
-        return json
+        val presenter = json[0]
+        val result = arangoDb.search(presenter.data.search_query)
+        return result
     }
 
     @PostMapping("/presenter:solr.update", consumes=["application/json"], produces=["application/json"])

@@ -52,7 +52,7 @@ class SolrAdapter: IAdapter {
         }
     }
 
-    override fun search(searchQuery: String): Array<Any> {
+    override fun search(searchQuery: String): List<Any> {
         println("Search query $searchQuery")
         // var sq = searchQuery.replace("&&", "AND")
         // sq = sq.replace("||", "OR")
@@ -62,7 +62,7 @@ class SolrAdapter: IAdapter {
         query.setRows(100)
 
         val response: QueryResponse = solrClient!!.query(query)
-        val list: Array<Any> = response.getResults().toArray()
+        val list: List<Any> = response.getResults().toList()
         println("${list.size} results.")
         return list
     }

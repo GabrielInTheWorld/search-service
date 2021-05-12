@@ -71,6 +71,10 @@ class ArangoAdapter(): IAdapter {
         }
     }
 
+    override fun getAll(): List<Any> {
+        return emptyList()
+    }
+
     private fun createDb(): Unit {
         if (arangodb.db(dbName).exists()) {
             arangodb.db(dbName).drop()

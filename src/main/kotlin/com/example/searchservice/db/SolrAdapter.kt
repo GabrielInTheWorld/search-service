@@ -30,16 +30,6 @@ class SolrAdapter (val topicRepo: TopicRepository, val motionblockRepo: MotionBl
     @Autowired
     private val solrClient: HttpSolrClient? = null
 
-    // @Resource
-    // private var topicRepo: TopicRepository? = null
-
-    // // @Resource
-    // private var motionblockRepo: MotionBlockRepository? = null
-    //     set (value) {
-    //         println("Sets motionblockRepo's value")
-    //         field = value
-    //     }
-
     private val repositoryMap = mapOf(
         "topic" to topicRepo,
         "motion_block" to motionblockRepo
@@ -51,11 +41,6 @@ class SolrAdapter (val topicRepo: TopicRepository, val motionblockRepo: MotionBl
         println("init::TopicRepo: $topicRepo")
     }
 
-    // constructor() {
-    //     println("MotionBlockRepo: $motionblockRepo")
-    //     println("TopicRepo: $topicRepo")
-    // }
-
     override fun bulkInsert(collection: String, entities: Array<Map<String, Any>>): Unit {
         println("Inserting entities in $collection")
         for (entity in entities) {
@@ -64,29 +49,6 @@ class SolrAdapter (val topicRepo: TopicRepository, val motionblockRepo: MotionBl
     }
 
     override fun insert(collection: String, entity: Map<*, *>): Unit {
-        // val id = entity["id"] as Int
-        // val document: SolrInputDocument = SolrInputDocument()
-        // for ((key, value) in entity) {
-        //     try {
-        //         document.addField(key as String, value)
-        //     } catch (e: Exception) {
-        //         println("An error occurred for key $key:$value\n" + e.message)
-        //     }
-        // }
-        // document.addField("collection", collection)
-        // document.setField("id", "$collection/$id")
-        // try {
-        //     solrClient?.add(document)
-        //     solrClient?.commit()
-        //     println("Done!")
-        // } catch (e: Exception) {
-        //     println("An error occurred: " + e.message)
-        // }
-        // if (repositoryMap.containsKey(collection)) {
-        //     repositoryMap[collection]!!.save(entity)
-        // }
-        // println("MotionBlockRepo: $motionblockRepo")
-        // println("TopicRepo: $topicRepo")
         when (collection) {
             Topic.COLLECTION -> {
                 println("data for topic: ${entity["id"]} | ${entity["title"]} | ${entity["text"]}")
@@ -100,25 +62,15 @@ class SolrAdapter (val topicRepo: TopicRepository, val motionblockRepo: MotionBl
 
     override fun search(searchQuery: String): List<Any> {
         println("Search query $searchQuery")
-        // var sq = searchQuery.replace("&&", "AND")
-        // sq = sq.replace("||", "OR")
-        // val query: SolrQuery = SolrQuery()
-        // query.setQuery(searchQuery)
-        // query.setStart(0)
-        // query.setRows(100)
-
-        // val response: QueryResponse = solrClient!!.query(query)
-        // val list: List<Any> = response.getResults().toList()
         val list: List<Any> = motionblockRepo.search(searchQuery)
-        // val list: List<Any> = motionblockRepo.findAll()
         println("${list.size} results.")
         return list
     }
 
-    fun getAll(): Any {
+    override fun getAll(): List<Any> {
         val result = motionblockRepo.findAll()
         println("Result: $result")
-        return result
+        return emptyList()
     }
 
     private fun getSolrClient(): HttpSolrClient {

@@ -16,12 +16,15 @@ import lombok.Data
 @SolrDocument(solrCoreName = "topic")
 data class Topic(
     @Id
+    @Field("id")
     @Indexed(name = "id", type = "int")
     val id: Int,
 
+    @Field("title")
     @Indexed(name = "title", type = "string")
     val title: String,
 
+    @Field("text")
     @Indexed(name = "text", type = "string")
     val text: String? = null
 ) {

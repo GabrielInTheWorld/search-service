@@ -2,6 +2,7 @@ package com.example.searchservice.api;
 
 import com.example.searchservice.db.ArangoAdapter;
 import com.example.searchservice.db.SolrAdapter
+import com.example.searchservice.solr2.*
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,18 +15,8 @@ import lombok.AllArgsConstructor
 
 @RestController
 @AllArgsConstructor
-class ApiController(val solrDb: SolrAdapter, val arangoDb: ArangoAdapter) {
+class ApiController(val solrDb: SolrAdapter2, val arangoDb: ArangoAdapter) {
     var id = 0
-
-    // @Resource
-    // private val arangoDb: ArangoAdapter? = null
-
-    // @Resource
-    // private val solrDb: SolrAdapter? = null
-
-
-    // val arangoDb = ArangoAdapter("Arango")
-    // val solrDb = SolrAdapter()
 
     @GetMapping("/greeting")
     fun greeting(@RequestParam(value = "name", defaultValue = "World") name: String): Greeting {

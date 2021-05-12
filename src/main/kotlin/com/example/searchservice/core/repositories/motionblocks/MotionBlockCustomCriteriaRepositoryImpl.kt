@@ -15,7 +15,7 @@ import javax.annotation.Resource
 @Repository
 class MotionBlockCustomCriteriaRepositoryImpl : MotionBlockCustomCriteriaRepository {
     @Resource
-    private val solrTemplate: SolrTemplate? = null
+    private var solrTemplate: SolrTemplate? = null
 
     override fun search(searchTerm: String): List<Any> {
         val words: List<String> = searchTerm.split(" ")
@@ -29,8 +29,10 @@ class MotionBlockCustomCriteriaRepositoryImpl : MotionBlockCustomCriteriaReposit
 
     private fun createSearchConditions(words: List<String>): Criteria {
         var conditions: Criteria = createCriteria(words[0])
-        for (i in 1..words.size) {
-            conditions = conditions.or(createCriteria(words[i]))
+        if (words.size > 1) {
+            for (i in 1..words.size) {
+                conditions = conditions.or(createCriteria(words[i]))
+            }
         }
         return conditions
     }

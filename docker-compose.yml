@@ -1,32 +1,19 @@
 version: "3"
 
 services:
-  # server:
-  #   image: search-service
-  #   restart: always
-  #   depends_on:
-  #     - arangodb
-  #   ports:
-  #     - "8080:8080"
-
   solr:
     image: solr:8
     network_mode: "host"
-    command:
-      - solr-precreate
-      - gettingstarted # core
-    # environment:
-    #   - SOLR_HOME=/mysolrhome
-    # volumes:
-    #   - "./mysolrhome:/mysolrhome"
-    # - ./solr/core/:/opt/solr/server/solr/gettingstarted
+    entrypoint:
+      - bash
+      - "-c"
+      - "precreate-core topic; precreate-core motion_block; exec solr -f"
+    # command:
+    #   - solr-precreate
+    #   - gettingstarted # core
 
   arangodb:
     image: arangodb:3.7
-    # expose:
-    #   - 8529
-    # ports:
-    #   - "8529:8529"
     environment:
       - ARANGO_NO_AUTH=1
     network_mode: "host"

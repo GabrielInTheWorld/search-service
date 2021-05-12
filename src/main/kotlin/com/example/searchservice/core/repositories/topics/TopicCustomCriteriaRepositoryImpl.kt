@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository
 
 import javax.annotation.Resource
 
+import lombok.AllArgsConstructor
+
 // @Repository
 // class TopicCustomCriteriaRepository : BaseCustomCriteriaRepositoryImpl(Topic::class.java, "topic") {
 //     protected override fun createCriteria(word: String): Criteria {
@@ -20,6 +22,7 @@ import javax.annotation.Resource
 // }
 
 @Repository
+// @AllArgsConstructor
 class TopicCustomCriteriaRepositoryImpl : TopicCustomCriteriaRepository {
     @Resource
     private val solrTemplate: SolrTemplate? = null
@@ -29,15 +32,17 @@ class TopicCustomCriteriaRepositoryImpl : TopicCustomCriteriaRepository {
         
         val conditions: Criteria = createSearchConditions(words)
         val searchQuery: SimpleQuery = SimpleQuery(conditions)
-        val results = solrTemplate!!.queryForPage("motion_block", searchQuery, MotionBlock::class.java)
+        val results = solrTemplate!!.queryForPage("topic", searchQuery, Topic::class.java)
 
         return results.getContent()
     }
 
     private fun createSearchConditions(words: List<String>): Criteria {
         var conditions: Criteria = createCriteria(words[0])
-        for (i in 1..words.size) {
-            conditions = conditions.or(createCriteria(words[i]))
+        if (words.size > 1) {
+            for (i in 1..words.size) {
+                conditions = conditions.or(createCriteria(words[i]))
+            }
         }
         return conditions
     }

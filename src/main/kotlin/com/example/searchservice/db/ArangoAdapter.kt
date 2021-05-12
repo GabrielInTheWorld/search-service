@@ -14,10 +14,14 @@ import com.arangodb.entity.ViewType
 import com.arangodb.ArangoCursor
 
 import com.google.gson.Gson
+import org.springframework.stereotype.Service
 
 // Reference: http://arangodb.github.io/arangodb-java-driver/javadoc-6_12/
 
-class ArangoAdapter(val dbName: String): IAdapter {
+@Service
+class ArangoAdapter(): IAdapter {
+    private val dbName: String = "Arango"
+    
     private val http = HttpClient("http://localhost:8529/_db/$dbName")
 
     private val arangodb: ArangoDB = ArangoDB.Builder().host("127.0.0.1", 8529).build()

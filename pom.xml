@@ -14,7 +14,6 @@
 	<name>search-service</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<!-- <start-class>com.example.searchservice.SearchServiceApplication</start-class> -->
 		<java.version>11</java.version>
 		<kotlin.version>1.4.32</kotlin.version>
 	</properties>
@@ -94,8 +93,13 @@
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-solr</artifactId>
-			<!-- <version>4.3.8</version> -->
 			<version>4.2.9.RELEASE</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.20.jre7</version>
 		</dependency>
 
 		<!-- AllArgsConstructor -->
@@ -112,9 +116,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<!-- <configuration>
-					<mainClass>com.example.searchservice.SearchServiceApplication</mainClass>
-				</configuration> -->
 			</plugin>
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>

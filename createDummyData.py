@@ -2,7 +2,10 @@ import json
 import random
 
 def randstr(length):
-    return ""
+    result = ""
+    for i in range(length):
+        result += chr(Math.randint(32, 126))
+    return result
 
 topics = []
 for id in range(1, 10):
@@ -16,7 +19,7 @@ blocks = []
 for id in range(1, 10):
     blocks.append({
         "id": id,
-        "title": "topic " + str(id),
+        "title": "block " + str(id),
         "internal": bool(random.getrandbits(1))
     })
 

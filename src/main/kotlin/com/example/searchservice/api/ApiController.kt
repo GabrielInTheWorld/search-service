@@ -2,6 +2,7 @@ package com.example.searchservice.api;
 
 import com.example.searchservice.db.ArangoAdapter;
 import com.example.searchservice.db.SolrAdapter
+import com.example.searchservice.db.PostgreAdapter
 import com.example.searchservice.solr2.*
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,7 @@ import lombok.AllArgsConstructor
 
 @RestController
 @AllArgsConstructor
-class ApiController(val solrDb: SolrAdapter2, val arangoDb: ArangoAdapter) {
+class ApiController(val solrDb: SolrAdapter2, val arangoDb: ArangoAdapter, val postgre: PostgreAdapter) {
     var id = 0
 
     @GetMapping("/greeting")
@@ -26,7 +27,7 @@ class ApiController(val solrDb: SolrAdapter2, val arangoDb: ArangoAdapter) {
     @PostMapping("/presenter:arango.update", consumes=["application/json"], produces=["application/json"])
     fun presenter(@RequestBody json: Map<String, Array<Map<String, Any>>>): Any {
         for ((key, value) in json) {
-            arangoDb?.bulkInsert(key, value)
+            arangoDb.bulkInsert(key, value)
         }
         return json
     }
@@ -34,14 +35,14 @@ class ApiController(val solrDb: SolrAdapter2, val arangoDb: ArangoAdapter) {
     @PostMapping("/presenter:arango.search", consumes=["application/json"], produces=["application/json"])
     fun presenterArangoSearch(@RequestBody json: Array<Presenter>): Any {
         val presenter = json[0]
-        val result = arangoDb!!.search(presenter.data.search_query)
+        val result = arangoDb.search(presenter.data.search_query)
         return result
     }
 
     @PostMapping("/presenter:solr.update", consumes=["application/json"], produces=["application/json"])
     fun presenterSolr(@RequestBody json: Map<String, Array<Map<String, Any>>>): Any {
         for ((key, value) in json) {
-            solrDb?.bulkInsert(key, value)
+            solrDb.bulkInsert(key, value)
         }
         return json
     }
@@ -49,7 +50,7 @@ class ApiController(val solrDb: SolrAdapter2, val arangoDb: ArangoAdapter) {
     @PostMapping("/presenter:solr.search", consumes=["application/json"], produces=["application/json"])
     fun presenterSolrSearch(@RequestBody json: Array<Presenter>): Any {
         val presenter: Presenter = json[0]
-        val result = solrDb!!.search(presenter.data.search_query)
+        val result = solrDb.search(presenter.data.search_query)
         return result
     }
 

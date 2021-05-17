@@ -1,6 +1,5 @@
 package com.example.searchservice.core.repositories.topics
 
-// import com.example.searchservice.core.repositories.base.*
 import com.example.searchservice.core.models.Topic
 
 import org.springframework.data.solr.repository.SolrCrudRepository

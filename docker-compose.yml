@@ -1,6 +1,15 @@
 version: "3"
 
 services:
+  searchservice:
+    image: search-service
+    build:
+      context: .
+      dockerfile: dockerfile
+    network_mode: "host"
+    volumes:
+      - ./:/app
+
   solr:
     image: solr:8
     network_mode: "host"
@@ -8,9 +17,6 @@ services:
       - bash
       - "-c"
       - "precreate-core topic; precreate-core motion_block; exec solr -f"
-    # command:
-    #   - solr-precreate
-    #   - gettingstarted # core
 
   arangodb:
     image: arangodb:3.7

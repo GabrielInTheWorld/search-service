@@ -1,6 +1,5 @@
 package com.example.searchservice.core.repositories.motionblocks
 
-import com.example.searchservice.core.repositories.base.*
 import com.example.searchservice.core.models.MotionBlock
 
 import org.springframework.data.solr.repository.SolrCrudRepository

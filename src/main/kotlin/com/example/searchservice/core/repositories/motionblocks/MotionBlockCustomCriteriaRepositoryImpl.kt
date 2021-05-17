@@ -1,7 +1,5 @@
 package com.example.searchservice.core.repositories.motionblocks
 
-import com.example.searchservice.core.repositories.base.*
-
 import com.example.searchservice.core.models.*
 
 import org.springframework.data.domain.Page;

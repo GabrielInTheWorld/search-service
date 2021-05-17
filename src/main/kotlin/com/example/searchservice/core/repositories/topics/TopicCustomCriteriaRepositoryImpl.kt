@@ -1,7 +1,5 @@
 package com.example.searchservice.core.repositories.topics
 
-import com.example.searchservice.core.repositories.base.*
-
 import com.example.searchservice.core.models.*
 
 import org.springframework.data.domain.Page;
@@ -12,17 +10,7 @@ import org.springframework.stereotype.Repository
 
 import javax.annotation.Resource
 
-import lombok.AllArgsConstructor
-
-// @Repository
-// class TopicCustomCriteriaRepository : BaseCustomCriteriaRepositoryImpl(Topic::class.java, "topic") {
-//     protected override fun createCriteria(word: String): Criteria {
-//         return Criteria("title").contains(word).or(Criteria("internal").contains(word)).or(Criteria("id").contains(word))
-//     }
-// }
-
 @Repository
-// @AllArgsConstructor
 class TopicCustomCriteriaRepositoryImpl : TopicCustomCriteriaRepository {
     @Resource
     private val solrTemplate: SolrTemplate? = null

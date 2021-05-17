@@ -7,8 +7,6 @@ services:
       context: .
       dockerfile: dockerfile
     network_mode: "host"
-    volumes:
-      - ./:/app
 
   solr:
     image: solr:8

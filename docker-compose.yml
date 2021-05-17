@@ -3,10 +3,10 @@ version: "3"
 services:
   searchservice:
     image: search-service
-    build:
-      context: .
-      dockerfile: dockerfile
+    build: .
     network_mode: "host"
+    volumes:
+      - ./src:/app/src
 
   solr:
     image: solr:8
@@ -20,4 +20,34 @@ services:
     image: arangodb:3.7
     environment:
       - ARANGO_NO_AUTH=1
+    network_mode: "host"
+
+  writer:
+    build:
+      context: "https://github.com/OpenSlides/openslides-datastore-service.git"
+      args:
+        MODULE: "writer"
+        PORT: "9011"
+    image: openslides-datastore-writer
+    network_mode: "host"
+    environment:
+      - DATASTORE_ENABLE_DEV_ENVIRONMENT=1
+      - COMMAND=create_initial_data
+      - DATASTORE_INITIAL_DATA_FILE=https://raw.githubusercontent.com/OpenSlides/OpenSlides/openslides4-dev/docs/example-data.json
+      - OPENSLIDES_DEVELOPMENT=1
+      - MESSAGE_BUS_HOST=localhost
+      - DATASTORE_DATABASE_HOST=localhost
+    depends_on:
+      - postgresql
+      - redis
+  
+  postgresql:
+    image: postgres:11
+    network_mode: "host"
+    environment:
+      - POSTGRES_USER=openslides
+      - POSTGRES_PASSWORD=openslides
+      - POSTGRES_DB=openslides
+  redis:
+    image: redis:alpine
     network_mode: "host"

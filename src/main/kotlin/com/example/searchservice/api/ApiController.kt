@@ -58,6 +58,26 @@ class ApiController(val solrDb: SolrAdapter2, val arangoDb: ArangoAdapter, val p
     fun presenterSolrGetAll(): Any {
         return solrDb.getAll()
     }
+
+    @PostMapping("/presenter:postgre.update", consumes=["application/json"], produces=["application/json"])
+    fun presenterPostgre(@RequestBody json: Map<String, Array<Map<String, Any>>>): Any {
+        for ((key, value) in json) {
+            postgre.bulkInsert(key, value)
+        }
+        return json
+    }
+
+    @PostMapping("/presenter:postgre.search", consumes=["application/json"], produces=["application/json"])
+    fun presenterPostgreSearch(@RequestBody json: Array<Presenter>): Any {
+        val presenter: Presenter = json[0]
+        val result = postgre.search(presenter.data.search_query)
+        return result
+    }
+
+    @PostMapping("/presenter:postgre.get_all", consumes=["application/json"], produces=["application/json"])
+    fun presenterPostgreGetAll(): Any {
+        return postgre.getAll()
+    }
 }
 
 data class Greeting(val id: Int, val name: String)

@@ -39,7 +39,7 @@ class HttpClient(private val serverUrl: String) {
     private fun send(path: String, method: HttpMethod, json: String = ""): String? {
         val request = HttpEntity(json, httpHeaders)
         val url = serverUrl + path
-        println("Send request to $url with method $method")
+        println("Send request to $url with method $method\nData: $json")
         try {
             return http.exchange(url, method, request, String::class.java).getBody()
         } catch (e: Exception) {

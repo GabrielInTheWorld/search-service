@@ -6,7 +6,8 @@ services:
     build: .
     network_mode: "host"
     volumes:
-      - ./src:/app/src
+      # - ./src:/app/src
+      - ./src/node/src:/app/src
 
   solr:
     image: solr:8
@@ -40,7 +41,7 @@ services:
     depends_on:
       - postgresql
       - redis
-  
+
   postgresql:
     image: postgres:11
     network_mode: "host"

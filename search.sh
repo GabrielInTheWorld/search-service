@@ -1,12 +1,5 @@
 #!/bin/sh
 
-#
-# a simple way to parse shell script arguments
-# 
-# please edit and use to your hearts content
-# 
-
-
 QUERY="dev"
 DB="postgre"
 PRESENTER="search"
@@ -14,7 +7,6 @@ DATA="{""}"
 
 function usage()
 {
-    echo "if this was a real script you would see something useful here"
     echo ""
     echo "./search.sh"
     echo "\t-h --help"
@@ -45,12 +37,6 @@ while [ "$1" != "" ]; do
         -d | --data)
             DATA=$VALUE
             ;;
-        # --environment)
-        #     ENVIRONMENT=$VALUE
-        #     ;;
-        # --db-path)
-        #     DB_PATH=$VALUE
-        #     ;;
         *)
             echo "ERROR: unknown parameter \"$PARAM\""
             usage

@@ -5,6 +5,7 @@ import com.example.searchservice.db.IAdapter
 
 import javax.annotation.Resource
 import org.springframework.stereotype.Service
+import kotlin.system.measureTimeMillis
 
 @Service
 class SolrAdapter2(@Resource val topicRepo: TopicRepoService, @Resource val motionblockRepo: MotionBlockRepoService) : IAdapter {
@@ -15,8 +16,10 @@ class SolrAdapter2(@Resource val topicRepo: TopicRepoService, @Resource val moti
     )
 
     override fun bulkInsert(collection: String, entities: Array<Map<String, Any>>): Unit {
-        for (entity in entities) {
-            insert(collection, entity)
+        if (repoMap.containsKey(collection)) {
+            repoMap[collection]?.bulkInsert(entities) 
+        } else {
+            println("Unknown collection: $collection")
         }
     }
 
@@ -30,17 +33,23 @@ class SolrAdapter2(@Resource val topicRepo: TopicRepoService, @Resource val moti
 
     override fun search(searchQuery: String): List<Any> {
         val list = ArrayList<Any>()
-        for ((key, value) in repoMap) {
-            list.addAll(value.search(searchQuery))
+        val elapsed = measureTimeMillis { 
+            for ((key, value) in repoMap) {
+                list.addAll(value.search(searchQuery))
+            }
         }
+        println("Search result after ${elapsed} ms.")
         return list
     }
 
     override fun getAll(): List<Any> {
         val list = ArrayList<Any>()
-        for ((key, value) in repoMap) {
-            list.addAll(value.getAll())
+        val elapsed = measureTimeMillis {
+            for ((key, value) in repoMap) {
+                list.addAll(value.getAll())
+            }
         }
+        println("Get_All result after ${elapsed} ms.")
         return list
     }
 }

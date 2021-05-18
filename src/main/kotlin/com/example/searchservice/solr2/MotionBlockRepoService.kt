@@ -14,6 +14,16 @@ class MotionBlockRepoService : BaseRepository<MotionBlock> {
         solrClient.setParser(XMLResponseParser())
     }
 
+    override fun bulkInsert(entities: Array<Map<String,Any>>): Unit {
+        val list = ArrayList<MotionBlock>()
+        for (entity in entities) {
+            list.add(MotionBlock(entity["id"] as Int, entity["title"] as String, entity["internal"] as Boolean))
+        }
+        solrClient.addBeans(list)
+        solrClient.commit()
+        println("Done! Inserted ${list.size} documents!")
+    }
+
     override fun insert(entity: Map<*, *>): Unit {
         val document = MotionBlock(entity["id"] as Int, entity["title"] as String, entity["internal"] as Boolean)
         solrClient.addBean(document)
@@ -26,7 +36,7 @@ class MotionBlockRepoService : BaseRepository<MotionBlock> {
         val q = if (Regex("^[a-zA-Z0-9\\s]*").matches(searchTerm)) createSearchCriteria(searchTerm) else searchTerm // Excludes special characters
         query.setQuery(q)
         query.setStart(0)
-        query.setRows(100) // will fetch 100 entries
+        query.setRows(10000) // will fetch up to 10000 entries
         val response = solrClient.query(query)
         return response.getResults().toList()
     }

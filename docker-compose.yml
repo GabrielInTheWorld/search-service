@@ -6,8 +6,8 @@ services:
     build: .
     network_mode: "host"
     volumes:
-      # - ./src:/app/src
-      - ./src/node/src:/app/src
+      - ./src:/app/src
+      # - ./src/node/src:/app/src
 
   solr:
     image: solr:8

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-QUERY="dev"
+QUERY="kill"
 DB="postgre"
 PRESENTER="search"
 DATA="{""}"

@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { createServer } from 'http';
-import RouteService from './route.service';
+import RouteService from './api/route.service';
 
 class Server {
     public static readonly PORT: number = 8080;

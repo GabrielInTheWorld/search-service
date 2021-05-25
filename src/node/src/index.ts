@@ -41,8 +41,6 @@ class Server {
         this.app.all('/', (req, res) => res.json('Hello World, Obi-Wan!'));
         this.app.post('/presenter', (req, res) => this.routeService.presenter(req, res));
         this.app.post('/presenter:postgre.update', (req, res) => this.routeService.bulkInsert(req, res));
-        // this.app.post('/presenter:postgre.get_all', (req, res) => this.routeService.getAll(req, res));
-        // this.app.post('/presenter:postgre.search', (req, res) => this.routeService.search(req, res));
     }
 
     private setCors(req: Request, res: Response, next: NextFunction): void {

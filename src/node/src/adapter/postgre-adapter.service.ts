@@ -46,14 +46,10 @@ export default class PostgreAdapterService {
 
     public async search(searchQuery: string): Promise<any> {
         searchQuery = this.createSearchCriteria(searchQuery);
-        // searchQuery = searchQuery.split(' ').join(' | ');
         console.log(`Start search with query: ${searchQuery}`);
         const client = await this.getClient();
         console.time('search');
-        const result = await client.query(
-            searchQuery
-            // `select * from models where text_search @@ to_tsquery(\'english\', \'${searchQuery}\');`
-        );
+        const result = await client.query(searchQuery);
         console.timeEnd('search');
         console.log(`Search result contains ${result.rows.length} entries.`);
         return result.rows;
@@ -74,13 +70,10 @@ export default class PostgreAdapterService {
             await this.client.query("update models set text_search = to_tsvector('english', data);");
         } catch (e) {
             console.log("COLUMN 'text_search' already exists. Aborting.");
-            // console.error('Stacktrace:\n', e);
         }
         // ##############################
         // ##############################
         // ######## Query to create an index on specific fields:
-        // ######## "create index <index-name> on models using gin (( data -> '<field>' ));" <- but that's not what we want!
-        // ######## "create extension pg_trgm; <- required to make use of 'gin_trgm_ops'
         // ######## "create index <index-name> on models using gin (( data ->> '<field>' ) gin_trgm_ops );" <- that's it!
         // ######## "select * from models where data ->> '<field>' like '%<search_term>%' or ..." <- querying for the specific field
         // ##############################
@@ -123,21 +116,17 @@ export default class PostgreAdapterService {
             promises.push(client.query(query));
         }
         await Promise.all(promises).then(() => console.log('Indexes created!'));
-        // return `CREATE `
     }
 
     private createSearchCriteria(q: string): string {
         const words = q.split(' ');
-        // const fields = ['title', 'text'];
         const fields = this.repositories.flatMap(repo => repo.getSearchableFields());
         const fieldSet = new Set(fields);
         let d = '';
         let i = 0;
         const max = words.length * fieldSet.size;
         for (const word of words) {
-            // const word = words[i];
             for (const field of fieldSet) {
-                // const field = fields[j];
                 ++i;
                 d += ` data ->> \'${field}\' like \'%${word}%\' ${i < max ? 'or' : ''}`;
             }

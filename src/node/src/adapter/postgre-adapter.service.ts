@@ -128,7 +128,7 @@ export default class PostgreAdapterService {
         for (const word of words) {
             for (const field of fieldSet) {
                 ++i;
-                d += ` data ->> \'${field}\' like \'%${word}%\' ${i < max ? 'or' : ''}`;
+                d += ` data ->> \'${field}\' ilike \'%${word}%\' ${i < max ? 'or' : ''}`;
             }
         }
         return `select fqid from models where ${d};`;

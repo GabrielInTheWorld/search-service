@@ -45,6 +45,8 @@ export default class RouteService {
                 return await this.getAll(presenter[0].data, response);
             // case 'insert':
             //     return await this.bulkInsert(presenter[0].data, response);
+            default:
+                response.json({ message: 'false', data: 'You have to pass at least one presenter' });
         }
     }
 }

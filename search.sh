@@ -51,4 +51,4 @@ echo "QUERY is $QUERY";
 echo "DB is $DB";
 echo "PRESENTER is $PRESENTER"
 
-curl -H "Content-Type: application/json" http://localhost:8080/presenter -d "[{\"presenter\": \"$PRESENTER\", \"data\": {\"db\": \""$DB"\", \"search_query\": \""$QUERY"\", \"data\": $DATA}}]"
+curl -H "Content-Type: application/json" http://localhost:8080/presenter -d "[{\"presenter\": \"$PRESENTER\", \"data\": {\"db\": \""$DB"\", \"search_query\": \"$QUERY\" }}]"

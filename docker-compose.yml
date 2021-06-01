@@ -6,22 +6,7 @@ services:
     build: .
     network_mode: "host"
     volumes:
-      # - ./src:/app/src
-      - ./src/node/src:/app/src
-
-  solr:
-    image: solr:8
-    network_mode: "host"
-    entrypoint:
-      - bash
-      - "-c"
-      - "precreate-core topic; precreate-core motion_block; exec solr -f"
-
-  arangodb:
-    image: arangodb:3.7
-    environment:
-      - ARANGO_NO_AUTH=1
-    network_mode: "host"
+      - ./node/src:/app/src
 
   writer:
     build:

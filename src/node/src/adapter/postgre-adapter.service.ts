@@ -45,7 +45,8 @@ export default class PostgreAdapterService {
     }
 
     public async search(searchQuery: string): Promise<any> {
-        searchQuery = this.createSearchCriteria(searchQuery);
+        searchQuery = searchQuery.split(' ').join(' | ');
+        searchQuery = `select * from models where topic_view_search @@ to_tsquery(${searchQuery});`; // or any other collection-search-column
         console.log(`Start search with query: ${searchQuery}`);
         const client = await this.getClient();
         console.time('search');
@@ -65,24 +66,17 @@ export default class PostgreAdapterService {
         await this.client.connect();
         const result = await this.client.query('select version()');
         console.log(`Connection to database successfully!\nDatabase version:`, result.rows);
-        try {
-            await this.client.query('alter table models add column text_search tsvector;');
-            await this.client.query("update models set text_search = to_tsvector('english', data);");
-        } catch (e) {
-            console.log("COLUMN 'text_search' already exists. Aborting.");
-        }
         // ##############################
         // ##############################
         // ######## Query to create an index on specific fields:
-        // ######## "create index <index-name> on models using gin (( data ->> '<field>' ) gin_trgm_ops );" <- that's it!
-        // ######## "select * from models where data ->> '<field>' like '%<search_term>%' or ..." <- querying for the specific field
+        // ######## "alter table models add column <column-name> tsvector;"
+        // ######## "update models set <column-name> = to_tsvector(coalesce(data ->> '<field>', '')) || to_tsvector(...) || ... where fqid ilike '...';"
+        // ######## "create index <index-name> on models using gin ( <column-name> );"
+        // ######## "select * from models where <column-name> @@ to_tsquery(query);" <- querying for the specific field
         // ##############################
         // ##############################
-        await this.client.query('CREATE INDEX IF NOT EXISTS search_idx ON models USING GIN (text_search);');
-
-        await this.client.query('CREATE EXTENSION IF NOT EXISTS pg_trgm with schema pg_catalog;');
         await this.createSearchIndexes();
-        console.log('Created a search-index');
+        console.log('Created a search-indexes');
     }
 
     private async getClient(): Promise<Client> {
@@ -108,29 +102,60 @@ export default class PostgreAdapterService {
 
     private async createSearchIndexes(): Promise<void> {
         const client = await this.getClient();
-        const fields = this.repositories.flatMap(repo => repo.getSearchableFields());
-        const fieldSet = new Set(fields);
-        const promises = [];
-        for (const field of fieldSet) {
-            const query = `create index if not exists ${field}_idx on models using gin (( data ->> '${field}' ) gin_trgm_ops );`;
-            promises.push(client.query(query));
-        }
-        await Promise.all(promises).then(() => console.log('Indexes created!'));
+        const collections = this.repositories.map(repo => repo.getCollection());
+        await Promise.all(collections.map(collection => this.createColumn(this.getColumnName(collection))));
+        await Promise.all(
+            this.repositories
+                .map(repo => ({ collection: repo.getCollection(), indexedFields: repo.getSearchableFields() }))
+                .map(item => this.createIndexForCollection(item.collection, item.indexedFields))
+        );
+        await Promise.all(
+            this.repositories
+                .map(repo => ({ collection: repo.getCollection(), indexedFields: repo.getSearchableFields() }))
+                .map(item => this.createTriggerFnForCollection(item.collection, item.indexedFields))
+        );
     }
 
-    private createSearchCriteria(q: string): string {
-        const words = q.split(' ');
-        const fields = this.repositories.flatMap(repo => repo.getSearchableFields());
-        const fieldSet = new Set(fields);
-        let d = '';
-        let i = 0;
-        const max = words.length * fieldSet.size;
-        for (const word of words) {
-            for (const field of fieldSet) {
-                ++i;
-                d += ` data ->> \'${field}\' ilike \'%${word}%\' ${i < max ? 'or' : ''}`;
-            }
-        }
-        return `select fqid from models where ${d};`;
+    private async createColumn(columnName: string): Promise<void> {
+        const client = await this.getClient();
+        await client
+            .query(`alter table models add column ${columnName};`)
+            .then(() => console.log(`Column ${columnName} created;`))
+            .catch(() => console.log(`Column ${columnName} already exists.`));
+    }
+
+    private async createIndexForCollection(collection: string, indexedFields: string[]): Promise<void> {
+        const client = await this.getClient();
+        const columnName = this.getColumnName(collection);
+        const toTsVector = this.toTsVector(indexedFields);
+        await client.query(`update models set ${columnName} = ${toTsVector} where fqid like '${collection}/%';`);
+        await client.query(`create index if not exists ${columnName}_idx on models using gin (${columnName});`);
+    }
+
+    private async createTriggerFnForCollection(collection: string, indexedFields: string[]): Promise<void> {
+        const client = await this.getClient();
+        const columnName = this.getColumnName(collection);
+        const triggerName = `${columnName}_trigger_fn()`;
+        const toTsVector = this.toTsVector(indexedFields);
+        const triggerFn = `
+            create function if not exists ${triggerName} returns trigger as $$
+            begin 
+                new.${columnName} = ${toTsVector};
+            return new;
+            end
+            $$ language plpgsql;
+        `;
+        await client.query(triggerFn);
+        await client.query(
+            `create trigger ${columnName}_trigger before insert or update on models for each row execute function ${triggerName};`
+        );
+    }
+
+    private toTsVector(indexedFields: string[]): string {
+        return indexedFields.map(field => `to_tsvector(coalesce(data ->> '${field}', ''))`).join(' || ');
+    }
+
+    private getColumnName(collection: string): string {
+        return `${collection}_view_search`;
     }
 }

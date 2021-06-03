@@ -46,7 +46,7 @@ export default class PostgreAdapterService {
 
     public async search(searchQuery: string): Promise<any> {
         searchQuery = searchQuery.split(' ').join(' | ');
-        searchQuery = `select * from models where topic_view_search @@ to_tsquery(${searchQuery});`; // or any other collection-search-column
+        searchQuery = `select * from models where topic_view_search @@ to_tsquery('${searchQuery}');`; // or any other collection-search-column
         console.log(`Start search with query: ${searchQuery}`);
         const client = await this.getClient();
         console.time('search');
@@ -119,7 +119,7 @@ export default class PostgreAdapterService {
     private async createColumn(columnName: string): Promise<void> {
         const client = await this.getClient();
         await client
-            .query(`alter table models add column ${columnName};`)
+            .query(`alter table models add column ${columnName} tsvector;`)
             .then(() => console.log(`Column ${columnName} created;`))
             .catch(() => console.log(`Column ${columnName} already exists.`));
     }
@@ -136,26 +136,37 @@ export default class PostgreAdapterService {
         const client = await this.getClient();
         const columnName = this.getColumnName(collection);
         const triggerName = `${columnName}_trigger_fn()`;
-        const toTsVector = this.toTsVector(indexedFields);
+        const toTsVector = this.toTsVector(indexedFields, 'new.');
         const triggerFn = `
-            create function if not exists ${triggerName} returns trigger as $$
+            create function ${triggerName} returns trigger as $$
             begin 
                 new.${columnName} = ${toTsVector};
             return new;
             end
             $$ language plpgsql;
         `;
-        await client.query(triggerFn);
-        await client.query(
-            `create trigger ${columnName}_trigger before insert or update on models for each row execute function ${triggerName};`
+        await this.executePromise(`Function ${triggerName}`, client.query(triggerFn));
+        await this.executePromise(
+            `Trigger ${columnName}_trigger`,
+            client.query(
+                `create trigger ${columnName}_trigger before insert or update on models for each row execute function ${triggerName};`
+            )
         );
     }
 
-    private toTsVector(indexedFields: string[]): string {
-        return indexedFields.map(field => `to_tsvector(coalesce(data ->> '${field}', ''))`).join(' || ');
+    private toTsVector(indexedFields: string[], dataPrefix: string = ''): string {
+        return indexedFields.map(field => `to_tsvector(coalesce(${dataPrefix}data ->> '${field}', ''))`).join(' || ');
     }
 
     private getColumnName(collection: string): string {
         return `${collection}_view_search`;
+    }
+
+    private async executePromise(name: string, promise: Promise<any>): Promise<void> {
+        try {
+            await promise;
+        } catch (e) {
+            console.log(`${name} already exists. Skipping.`);
+        }
     }
 }

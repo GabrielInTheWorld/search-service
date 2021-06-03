@@ -1,4 +1,4 @@
-import { Client } from 'pg';
+import { Client, QueryResult } from 'pg';
 import { MotionBlockRepositoryService } from '../core/repositories/motion-block-repository.service';
 import { SearchRepository } from '../core/repositories/search-repository';
 import { TopicRepositoryService } from '../core/repositories/topic-repository.service';
@@ -46,14 +46,16 @@ export default class PostgreAdapterService {
 
     public async search(searchQuery: string): Promise<any> {
         searchQuery = searchQuery.split(' ').join(' | ');
-        searchQuery = `select * from models where topic_view_search @@ to_tsquery('${searchQuery}');`; // or any other collection-search-column
+        const searchQueryFn = (collection: string) =>
+            `select * from models where ${this.getColumnName(collection)} @@ to_tsquery('${searchQuery}');`;
         console.log(`Start search with query: ${searchQuery}`);
         const client = await this.getClient();
+        const promises = this.repositories.map(repo => client.query(searchQueryFn(repo.getCollection())));
         console.time('search');
-        const result = await client.query(searchQuery);
+        const result = (await Promise.all(promises)).flatMap(entry => entry.rows);
         console.timeEnd('search');
-        console.log(`Search result contains ${result.rows.length} entries.`);
-        return result.rows;
+        console.log(`Search result contains ${result.length} entries.`);
+        return result;
     }
 
     private async init(): Promise<void> {

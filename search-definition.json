@@ -1,0 +1,45 @@
+{
+    "motion": {
+        "search_fields": ["number", "title", "text", "reason", "amendment_paragraph_$"],
+        "additional_fields": ["sequential_number"],
+        "search_relations": {
+            "comment_ids": {
+                "collection": "motion_comment",
+                "search_fields": ["comment"]
+            },
+            "tag_ids": {
+                "collection": "tag",
+                "search_fields": ["name"]
+            },
+            "supporter_ids": {
+                "collection": "user",
+                "search_fields": ["title", "first_name", "last_name", "default_structure_level", "structure_level_$<meeting_id>"]
+            },
+            "submitter_ids": {
+                "collection": "motion_submitter",
+                "search_relations": {
+                    "user_ids": {
+                        "collection": "user",
+                        "search_fields": ["title", "first_name", "last_name", "default_structure_level", "structure_level_$<meeting_id>"]
+                    }
+                }
+            },
+            "category_id": {
+                "collection": "motion_category",
+                "search_fields": ["name", "prefix"]
+            }
+        },
+        "additional_relations": {
+            "state_id": {
+                "collection": "motion_state",
+                "additional_fields": ["name"]
+            }
+        }
+    },
+    "motion_category": {
+        "search_fields": ["name", "prefix"]
+    },
+    "motion_block": {
+        "search_fields": ["title"]
+    }
+}
